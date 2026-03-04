@@ -8,7 +8,7 @@ import helmet from "helmet";
 
 export const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: "https://synctask-web.vercel.app/login", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRoutes);
