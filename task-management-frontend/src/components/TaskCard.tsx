@@ -38,7 +38,7 @@ export default function TaskCard({ task, darkMode }: { task: any; darkMode: bool
 
   return (
     <>
-      <div className={`group p-5 rounded-[2rem] border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative 
+      <div className={`group p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border transition-all duration-300 hover:shadow-xl relative
         ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100 shadow-sm'}
         ${task.status ? 'opacity-50' : ''}`}>
         
