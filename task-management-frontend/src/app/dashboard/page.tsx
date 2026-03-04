@@ -88,7 +88,8 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden pb-16 md:pb-0">
+      <main className="flex-1 flex flex-col overflow-hidden">
+     
         <header className={`flex justify-between items-center px-6 md:px-8 py-4 transition-colors ${darkMode ? 'bg-gray-900 border-b border-gray-800' : 'bg-transparent'}`}>
            <div className="md:hidden">
              <p className="text-xl font-black text-[#5C59C2]">SyncTask</p>
@@ -101,10 +102,11 @@ export default function DashboardPage() {
               <Navbar name={user?.name || "User"} darkMode={darkMode} />
            </div>
         </header>
+
         <div className="p-6 md:p-8 overflow-y-auto">
           <div className="mb-8">
             <h1 className={`text-3xl font-black tracking-tight ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                Hey, {user?.name? user.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ') : "User"}
+                Hey, {user?.name? user.name.split(' ')[0] : "User"}
             </h1>
             <p className="text-gray-400 font-bold mt-1 uppercase text-[10px] tracking-widest">Manage your daily flow</p>
           </div>
@@ -120,14 +122,33 @@ export default function DashboardPage() {
                 className={`w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl outline-none font-bold focus:border-gray-900 transition-all ${darkMode ? 'bg-gray-900 border-gray-800 text-white' : 'bg-white text-gray-900 shadow-sm'}`} 
               />
             </div>
-
             <div className="flex w-full md:w-auto gap-2">
-               <button onClick={() => setIsFilterOpen(!isFilterOpen)} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 border border-gray-200 rounded-xl font-bold ${darkMode ? 'bg-gray-900 text-gray-300 border-gray-800' : 'bg-white text-gray-600'}`}>
-                 <ListFilter size={18} /> <span>Filter</span>
-               </button>
-               <button onClick={() => setShowModal(true)} className="flex-1 md:hidden bg-[#5C59C2] text-white px-5 py-3 rounded-xl font-black shadow-lg flex items-center justify-center gap-2">
-                 <Plus size={18} /> New
-               </button>
+               <div className="relative flex-1 md:flex-none">
+                 <button onClick={() => { setIsFilterOpen(!isFilterOpen); setIsSortOpen(false); }} className={`w-full flex items-center justify-center gap-2 px-5 py-3 border border-gray-200 rounded-xl font-bold ${darkMode ? 'bg-gray-900 text-gray-300 border-gray-800' : 'bg-white text-gray-600'}`}>
+                   <ListFilter size={18} /> <span>{filterCategory === "All" ? "Filter" : filterCategory}</span> <ChevronDown size={14} className={isFilterOpen ? "rotate-180 transition-transform" : ""} />
+                 </button>
+                 {isFilterOpen && (
+                   <div className={`absolute left-0 mt-3 w-48 rounded-2xl shadow-2xl z-[100] border p-2 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'}`}>
+                     {["All", "Work", "Personal", "Shopping", "Health"].map(cat => (
+                       <button key={cat} onClick={() => {setFilterCategory(cat); setIsFilterOpen(false);}} className={`w-full text-left px-3 py-2 text-xs font-bold rounded-lg ${filterCategory === cat ? 'bg-[#5C59C2] text-white' : 'hover:bg-[#5C59C2]/10 transition-colors'}`}>
+                         {cat}
+                       </button>
+                     ))}
+                   </div>
+                 )}
+               </div>
+
+               <div className="relative flex-1 md:flex-none">
+                 <button onClick={() => { setIsSortOpen(!isSortOpen); setIsFilterOpen(false); }} className={`w-full flex items-center justify-center gap-2 px-5 py-3 border border-gray-200 rounded-xl font-bold ${darkMode ? 'bg-gray-900 text-gray-300 border-gray-800' : 'bg-white text-gray-600'}`}>
+                   <ArrowUpDown size={18} /> <span>Sort</span> <ChevronDown size={14} className={isSortOpen ? "rotate-180 transition-transform" : ""} />
+                 </button>
+                 {isSortOpen && (
+                   <div className={`absolute left-0 mt-3 w-48 rounded-2xl shadow-2xl z-[100] border p-2 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'}`}>
+                     <button onClick={() => {setSortBy("newest"); setIsSortOpen(false);}} className={`w-full text-left px-3 py-2 text-xs font-bold rounded-lg ${sortBy === "newest" ? "text-[#5C59C2]" : "hover:bg-[#5C59C2]/10"}`}>Newest Date</button>
+                     <button onClick={() => {setSortBy("oldest"); setIsSortOpen(false);}} className={`w-full text-left px-3 py-2 text-xs font-bold rounded-lg ${sortBy === "oldest" ? "text-[#5C59C2]" : "hover:bg-[#5C59C2]/10"}`}>Oldest Date</button>
+                   </div>
+                 )}
+               </div>
             </div>
 
             <button onClick={() => setShowModal(true)} className="hidden md:flex bg-[#5C59C2] text-white px-6 py-3 rounded-xl font-black shadow-lg shadow-[#5C59C2]/30 items-center gap-2 hover:bg-[#4B48A3] active:scale-95 transition-all ml-auto">
@@ -135,13 +156,13 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {filteredTasks.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredTasks.map((task: any) => <TaskCard key={task.id} task={task} darkMode={darkMode} />)}
-            </div>
-          ) : (
-            <EmptyState darkMode={darkMode} setShowModal={setShowModal} />
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredTasks.length > 0 ? (
+              filteredTasks.map((task: any) => <TaskCard key={task.id} task={task} darkMode={darkMode} />)
+            ) : (
+              <EmptyState darkMode={darkMode} setShowModal={setShowModal} />
+            )}
+          </div>
         </div>
       </main>
 
@@ -149,6 +170,7 @@ export default function DashboardPage() {
         <button onClick={() => setActiveTab("all")} className={activeTab === "all" ? "text-[#5C59C2]" : "text-gray-400"}><LayoutDashboard size={20}/></button>
         <button onClick={() => setActiveTab("pending")} className={activeTab === "pending" ? "text-[#5C59C2]" : "text-gray-400"}><Clock size={20}/></button>
         <button onClick={() => setActiveTab("completed")} className={activeTab === "completed" ? "text-[#5C59C2]" : "text-gray-400"}><CheckCircle size={20}/></button>
+        <button onClick={() => setShowModal(true)} className="bg-[#5C59C2] text-white p-2 rounded-lg"><Plus size={20}/></button>
       </div>
 
       {showModal && <TaskForm onClose={() => setShowModal(false)} />}
@@ -158,7 +180,7 @@ export default function DashboardPage() {
 
 function EmptyState({ darkMode, setShowModal }: { darkMode: boolean; setShowModal: any }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
+    <div className="flex flex-col items-center justify-center py-20 text-center col-span-full">
       <div className={`w-24 h-24 mb-6 rounded-full flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-[#A5A2F2]/10'}`}>
         <CheckCircle className="text-[#A5A2F2]" size={40} />
       </div>
