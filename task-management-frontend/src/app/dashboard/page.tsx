@@ -29,13 +29,11 @@ export default function DashboardPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading: isQueryLoading } = useQuery({
     queryKey: ["tasks", search], 
     queryFn: async () => (await api.get("/tasks", { params: { search } })).data,
     enabled: !loading,
   });
-
-  if (loading) return <div className="p-10 font-black text-[#5C59C2] text-center uppercase tracking-widest">Syncing SyncTask...</div>;
 
   const tasks = data?.data || [];
   const completedCount = tasks.filter((t: any) => t.status).length;
@@ -89,7 +87,6 @@ export default function DashboardPage() {
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden">
-     
         <header className={`flex justify-between items-center px-6 md:px-8 py-4 transition-colors ${darkMode ? 'bg-gray-900 border-b border-gray-800' : 'bg-transparent'}`}>
            <div className="md:hidden">
              <p className="text-xl font-black text-[#5C59C2]">SyncTask</p>
@@ -112,6 +109,7 @@ export default function DashboardPage() {
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-3 mb-10">
+
             <div className="relative w-full md:flex-1 md:max-w-xs">
               <Search size={18} className="absolute left-4 top-3.5 text-gray-400" />
               <input 
@@ -122,6 +120,7 @@ export default function DashboardPage() {
                 className={`w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl outline-none font-bold focus:border-gray-900 transition-all ${darkMode ? 'bg-gray-900 border-gray-800 text-white' : 'bg-white text-gray-900 shadow-sm'}`} 
               />
             </div>
+
             <div className="flex w-full md:w-auto gap-2">
                <div className="relative flex-1 md:flex-none">
                  <button onClick={() => { setIsFilterOpen(!isFilterOpen); setIsSortOpen(false); }} className={`w-full flex items-center justify-center gap-2 px-5 py-3 border border-gray-200 rounded-xl font-bold ${darkMode ? 'bg-gray-900 text-gray-300 border-gray-800' : 'bg-white text-gray-600'}`}>
@@ -156,13 +155,20 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTasks.length > 0 ? (
-              filteredTasks.map((task: any) => <TaskCard key={task.id} task={task} darkMode={darkMode} />)
-            ) : (
-              <EmptyState darkMode={darkMode} setShowModal={setShowModal} />
-            )}
-          </div>
+          {loading || isQueryLoading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+               <div className="w-12 h-12 border-4 border-[#5C59C2]/20 border-t-[#5C59C2] rounded-full animate-spin mb-4"></div>
+               <p className="font-black text-[#5C59C2] uppercase tracking-widest animate-pulse">Syncing Tasks...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredTasks.length > 0 ? (
+                filteredTasks.map((task: any) => <TaskCard key={task.id} task={task} darkMode={darkMode} />)
+              ) : (
+                <EmptyState darkMode={darkMode} setShowModal={setShowModal} />
+              )}
+            </div>
+          )}
         </div>
       </main>
 
