@@ -8,11 +8,11 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     const validated = registerSchema.parse(req.body);
     const result = await authService.registerUser(validated);
     
-    //Set the cookie for automatic login after registration
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(201).json({
@@ -31,8 +31,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.json({ 
@@ -51,8 +52,9 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
 
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.json({ 

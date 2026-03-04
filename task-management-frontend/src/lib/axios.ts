@@ -9,11 +9,17 @@ let accessToken: string | null = null;
 
 export const setAccessToken = (token: string) => {
   accessToken = token;
+  if (typeof window !== "undefined") {
+    if (token) localStorage.setItem("token", token);
+    else localStorage.removeItem("token");
+  }
 };
 
 api.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  const token = accessToken || (typeof window !== "undefined" && localStorage.getItem("token"));
+  
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

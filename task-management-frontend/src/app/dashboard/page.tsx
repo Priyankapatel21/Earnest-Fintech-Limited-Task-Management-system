@@ -46,8 +46,7 @@ export default function DashboardPage() {
     const matchesCategory = filterCategory === "All" || task.category === filterCategory;
     return matchesTab && matchesCategory;
   });
-
-  // Sort Logic
+  
   filteredTasks = [...filteredTasks].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
