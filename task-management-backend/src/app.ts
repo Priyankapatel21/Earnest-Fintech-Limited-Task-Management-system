@@ -8,15 +8,20 @@ import helmet from "helmet";
 
 export const app = express();
 
+app.use(helmet()); 
+
 app.use(cors({ origin: "https://synctask-web.vercel.app", credentials: true }));
+
 app.use(express.json());
 app.use(cookieParser());
+
 app.use("/auth", authRoutes);
 app.use("/tasks", taskRoutes);
-app.use(helmet());
 
 app.get("/", (req, res) => {
   res.send("API Running");
 });
 
 app.use(errorHandler);
+
+export default app;
